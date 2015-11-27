@@ -20,6 +20,7 @@ namespace Teh_Pucuk
         private static bool _loaded;
         private static float maxjarak;
         private static Hero gue;
+        private static ParticleEffect rangeDisplay;
         private static readonly Menu menu = new Menu("Display", "display", true);
         private static readonly Dictionary<Unit, ParticleEffect> Efek = new Dictionary<Unit, ParticleEffect>();
         private static readonly List<ParticleEffect> Effects = new List<ParticleEffect>(); // keep references
@@ -90,42 +91,42 @@ namespace Teh_Pucuk
             {
                 e.Dispose();
             }
+            rangeDisplay.Dispose();
             Effects.Clear();
             gue = ObjectMgr.LocalHero;
-            maxjarak = gue.GetAttackRange() + gue.HullRadius + 25;
             var towers = ObjectMgr.GetEntities<Building>().Where(x => x.IsAlive && x.ClassID == ClassID.CDOTA_BaseNPC_Tower).ToList();
             var player = ObjectMgr.LocalPlayer;
-            if (player.Team == Team.Observer)
+            if (towermu)
             {
-                foreach (var effect in towers.Select(tower => tower.AddParticleEffect(@"particles\ui_mouseactions\range_display.vpcf")))
+                foreach (var effect in towers.Where(x => x.Team != player.Team).Select(tower => tower.AddParticleEffect(@"particles\ui_mouseactions\range_display.vpcf")))
                 {
                     effect.SetControlPoint(1, new Vector3(850, 0, 0));
                     Effects.Add(effect);
                 }
             }
-            else
+            if (towerku)
             {
-                if (towermu)
-                {
-                    foreach (var effect in towers.Where(x => x.Team != player.Team).Select(tower => tower.AddParticleEffect(@"particles\ui_mouseactions\range_display.vpcf")))
-                    {
-                        effect.SetControlPoint(1, new Vector3(850, 0, 0));
-                        Effects.Add(effect);
-                    }
-                }
-                if (towerku)
-                {
-                    foreach (var effect in towers.Where(x => x.Team == player.Team).Select(tower => tower.AddParticleEffect(@"particles\ui_mouseactions\range_display.vpcf")))
-                    {
-                        effect.SetControlPoint(1, new Vector3(850,0,0));
-                        Effects.Add(effect);
-                    }
-                }
-                if (jarakku)
-                {
-                    gue.AddParticleEffect(@"particles\ui_mouseactions\range_display.vpcf").SetControlPoint(1, new Vector3(maxjarak, 0, 0));
-                }
+               foreach (var effect in towers.Where(x => x.Team == player.Team).Select(tower => tower.AddParticleEffect(@"particles\ui_mouseactions\range_display.vpcf")))
+               {
+                    effect.SetControlPoint(1, new Vector3(850,0,0));
+                    Effects.Add(effect);
+               }
             }
+            if (rangeDisplay == null && jarakku)
+            {
+                rangeDisplay = gue.AddParticleEffect(@"particles\ui_mouseactions\range_display.vpcf");
+                maxjarak = gue.GetAttackRange() + gue.HullRadius + 25;
+                rangeDisplay.SetControlPoint(1, new Vector3(maxjarak, 0, 0));
+            }
+            else if (maxjarak != gue.GetAttackRange() + gue.HullRadius + 25 && jarakku)
+            {
+                rangeDisplay.Dispose();
+                maxjarak = gue.GetAttackRange() + gue.HullRadius + 25;
+                rangeDisplay = gue.AddParticleEffect(@"particles\ui_mouseactions\range_display.vpcf");
+                rangeDisplay.SetControlPoint(1, new Vector3(maxjarak, 0, 0));
+            }
+            else
+                rangeDisplay=null;
         }
 
         private static void keliatan()
