@@ -78,19 +78,6 @@ namespace TehPucuk
                 if (state == GameState.Started || state == GameState.Prestart)
                     DisplayRange();
             }
-            if (args.GameEvent.Name == "dota_inventory_changed")
-            {
-                var itemsPurchased = ObjectMgr.GetEntities<Item>().Where(item => !Items.ContainsKey(item.Handle) && item.Owner.Team != ObjectMgr.LocalHero.Team && !item.Owner.IsIllusion() && (item.Cost >= 1000 || itembahaya.Contains(item.Name)) && !item.IsRecipe && !item.Owner.Name.Equals("npc_dota_hero_roshan")).ToList();
-                if (itemsPurchased.Any())
-                {
-                    foreach (var item in itemsPurchased)
-                    {
-                        Items[item.Handle] = true;
-                        Game.ExecuteCommand("say_team "+item.Owner.Name.Replace("npc_dota_hero_", "")+" barusan beli "+item.Name.Replace("item_", ""));
-                    }
-                }
-            }
-
 
             //Aura Keliatan di map
 
@@ -111,6 +98,17 @@ namespace TehPucuk
                 cekinvis(kita);
                 if (!kita.IsVisibleToEnemies)
                     count = 0;
+            }
+
+            if (args.GameEvent.Name != "dota_inventory_changed")
+                return;
+                var itemsPurchased = ObjectMgr.GetEntities<Item>().Where(item => !Items.ContainsKey(item.Handle) && item.Owner.Team != ObjectMgr.LocalHero.Team && !item.Owner.IsIllusion() && (item.Cost >= 1000 || itembahaya.Contains(item.Name)) && !item.IsRecipe && !item.Owner.Name.Equals("npc_dota_hero_roshan")).ToList();
+            if (!itemsPurchased.Any())
+                return;
+            foreach (var item in itemsPurchased)
+            {
+                Items[item.Handle] = true;
+                Game.ExecuteCommand("say_team " + item.Owner.Name.Replace("npc_dota_hero_", "") + " barusan beli " + item.Name.Replace("item_", ""));
             }
         }
 
