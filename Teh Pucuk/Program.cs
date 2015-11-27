@@ -100,12 +100,11 @@ namespace TehPucuk
             (x.ClassID != ClassID.CDOTA_BaseNPC_Creep_Lane) && x.Team == player.Team).ToList();
             var playerkita = ObjectMgr.GetEntities<Hero>().Where(
                 y =>
-                ((y.Team == player.Team) && y.IsAlive && y.IsInvisible()));
+                ((y.Team == player.Team) && y.IsAlive && y.IsInvisible() )).ToList();
             foreach (var unit in units)
             {
                 HandleEffect(unit);
             }
-            if (args.GameEvent.Name=="")
             foreach (var kita in playerkita)
             {
                 if (count<1)
