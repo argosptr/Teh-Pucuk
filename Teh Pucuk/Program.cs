@@ -44,8 +44,6 @@ namespace Teh_Pucuk
             punyakita.ValueChanged += MenuItem_ValueChanged;
             punyamereka.ValueChanged += MenuItem_ValueChanged;
             jarak.ValueChanged += MenuItem_ValueChanged;
-
-            keliatan();
             LiatJarak();
             Game.OnFireEvent += Game_OnFireEvent;
             _loaded = false;
@@ -55,13 +53,31 @@ namespace Teh_Pucuk
 
         private static void Game_OnFireEvent(FireEventEventArgs args)
         {
+
             if (args.GameEvent.Name == "dota_game_state_change")
             {
+                var gue = ObjectMgr.LocalHero;
+                if (!_loaded)
+                {
+                    if (!Game.IsInGame || gue == null)
+                    {
+                        return;
+                    }
+                    _loaded = true;
+                    Game.PrintMessage("<font face='Comic Sans MS, cursive'><font color='#00aaff'>Teh Pucuk</font>", MessageType.ChatMessage);
+                }
+                if (!Game.IsInGame || gue == null)
+                {
+                    _loaded = false;
+                    Game.PrintMessage("<font face='Comic Sans MS, cursive'><font color='#00aaff'>Teh Pucuk Mati</font>", MessageType.ChatMessage);
+                    return;
+                }
                 var state = (GameState)args.GameEvent.GetInt("new_state");
                 if (state == GameState.Started || state == GameState.Prestart)
-                    keliatan();
-                    Game.OnUpdate += Game_OnUpdate;
-
+                {
+                    LiatJarak();
+                }
+                keliatan();
             }
         }
 
@@ -78,24 +94,7 @@ namespace Teh_Pucuk
 
         private static void Game_OnUpdate(EventArgs args)
         {
-            var gue = ObjectMgr.LocalHero;
-            if (!_loaded)
-            {
-                if (!Game.IsInGame || gue == null)
-                {
-                    return;
-                }
-                LiatJarak();
-                keliatan();
-                _loaded = true;
-                Game.PrintMessage("<font face='Comic Sans MS, cursive'><font color='#00aaff'>Teh Pucuk</font>", MessageType.ChatMessage);
-            }
-            if (!Game.IsInGame || gue == null)
-            {
-                _loaded = false;
-                Game.PrintMessage("<font face='Comic Sans MS, cursive'><font color='#00aaff'>Teh Pucuk Mati</font>", MessageType.ChatMessage);
-                return;
-            }
+
         }
 
         private static void LiatJarak()
