@@ -19,9 +19,20 @@ namespace TehPucuk
         private static ParticleEffect rangeDisplay;
         private static float lastRange;
         private static Hero me;
+        private static readonly Dictionary<uint, bool> Items = new Dictionary<uint, bool>();
         private static readonly Menu Menu = new Menu("Display", "towerRange", true);
         private static readonly Dictionary<Unit, ParticleEffect> Efek = new Dictionary<Unit, ParticleEffect>();
         private static readonly List<ParticleEffect> Effects = new List<ParticleEffect>(); // keep references
+        private static readonly List<string> itembahaya = new List<string>()
+        {
+            "item_gem",
+            "item_dust",
+            "item_ward_sentry",
+            "item_invis_sword",
+            "item_silver_edge",
+            "item_smoke_of_deceit",
+        };
+        //Modul Utama
         private static void Main()
         {
 
@@ -47,18 +58,18 @@ namespace TehPucuk
             Game.OnFireEvent += Game_OnFireEvent;
         }
 
-        // ReSharper disable once InconsistentNaming
+        //Menu berubah
         private static void MenuItem_ValueChanged(object sender, OnValueChangeEventArgs e)
         {
             var item = sender as MenuItem;
-
-            // ReSharper disable once PossibleNullReferenceException
             if (item.Name == "ownTowers") ownTowers = e.GetNewValue<bool>();
+            else if (item.Name == "jarSer") jarSer = e.GetNewValue<bool>();
             else enemyTowers = e.GetNewValue<bool>();
 
             DisplayRange();
         }
 
+        //Game Berjalan
         private static void Game_OnFireEvent(FireEventEventArgs args)
         {
             if (args.GameEvent.Name == "dota_game_state_change")
@@ -67,8 +78,18 @@ namespace TehPucuk
                 if (state == GameState.Started || state == GameState.Prestart)
                     DisplayRange();
             }
-
-
+            if (args.GameEvent.Name == "dota_inventory_changed")
+            {
+                var itemsPurchased = ObjectMgr.GetEntities<Item>().Where(item => !Items.ContainsKey(item.Handle) && item.Owner.Team != ObjectMgr.LocalHero.Team && !item.Owner.IsIllusion() && (item.Cost >= 1000 || itembahaya.Contains(item.Name)) && !item.IsRecipe && !item.Owner.Name.Equals("npc_dota_hero_roshan")).ToList();
+                if (itemsPurchased.Any())
+                {
+                    foreach (var item in itemsPurchased)
+                    {
+                        Items[item.Handle] = true;
+                        Game.ExecuteCommand("say_team "+item.Owner.Name.Replace("npc_dota_hero_", "")+" barusan beli "+item.Name.Replace("item_", ""));
+                    }
+                }
+            }
 
 
             //Aura Keliatan di map
@@ -93,6 +114,7 @@ namespace TehPucuk
             }
         }
 
+        //Cek yang invi keliatan apa g
         static void cekinvis(Hero kita)
         {
             if (kita.IsInvisible()&& kita.IsVisibleToEnemies)
@@ -101,6 +123,8 @@ namespace TehPucuk
                 count += 1;
             }
         }
+
+        //Pasang efek Aura
         static void HandleEffect(Unit unit)
         {
             if (unit.IsVisibleToEnemies && unit.IsAlive)
@@ -124,7 +148,7 @@ namespace TehPucuk
         }
 
 
-
+        //Nampilkan attack range
         private static void DisplayRange()
         {
             if (!Game.IsInGame)
