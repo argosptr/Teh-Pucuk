@@ -15,13 +15,13 @@ namespace TehPucuk
         private static bool ownTowers = true;
         private static bool enemyTowers = true;
         private static bool jarSer = true;
+        private static bool spam = false;
         private static ParticleEffect rangeDisplay;
         private static float lastRange;
         private static Hero me;
         private static readonly Menu Menu = new Menu("Display", "towerRange", true);
         private static readonly Dictionary<Unit, ParticleEffect> Efek = new Dictionary<Unit, ParticleEffect>();
         private static readonly List<ParticleEffect> Effects = new List<ParticleEffect>(); // keep references
-
         private static void Main()
         {
             var ally = new MenuItem("ownTowers", "Range of allied towers").SetValue(true);
@@ -85,14 +85,19 @@ namespace TehPucuk
             }
             foreach (var kita in playerkita)
             {
-                cekinvis(kita);
+                spam= cekinvis(kita, spam);
             }
         }
 
-        static void cekinvis(Hero kita)
+        static bool cekinvis(Hero kita, bool spam)
         {
-            if (kita.IsInvisible() && kita.IsVisibleToEnemies)
-                Game.ExecuteCommand("say_team " + kita.Name + " aka " + kita.NetworkName + " keliatan");
+            if (kita.IsInvisible() && kita.IsVisibleToEnemies && spam == false)
+            {
+                Game.ExecuteCommand("say_team " + kita.Name.ToLower() + " keliatan");
+                return true;
+            }
+            else
+                return false;
         }
         static void HandleEffect(Unit unit)
         {
