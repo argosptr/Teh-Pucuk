@@ -71,7 +71,7 @@ namespace TehPucuk
 
 
             //Aura Keliatan di map
-            bool spam = false;
+            static bool spam = false;
             var player = ObjectMgr.LocalPlayer;
             var units = ObjectMgr.GetEntities<Unit>().Where(
             x =>
