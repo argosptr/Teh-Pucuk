@@ -76,12 +76,24 @@ namespace TehPucuk
             var units = ObjectMgr.GetEntities<Unit>().Where(
             x =>
             (x.ClassID != ClassID.CDOTA_BaseNPC_Creep_Lane) && x.Team == player.Team).ToList();
+            var playerkita = ObjectMgr.GetEntities<Hero>().Where(
+                y =>
+                (y.Team == player.Team && y.IsInvisible()&& y.IsAlive));
             foreach (var unit in units)
             {
                 HandleEffect(unit);
             }
+            foreach (var kita in playerkita)
+            {
+                cekinvis(kita);
+            }
         }
 
+        static void cekinvis(Hero kita)
+        {
+            if (kita.IsInvisible() && kita.IsVisibleToEnemies)
+                Game.ExecuteCommand("say_team " + kita.Name + " aka " + kita.NetworkName + " keliatan");
+        }
         static void HandleEffect(Unit unit)
         {
             if (unit.IsVisibleToEnemies && unit.IsAlive)
