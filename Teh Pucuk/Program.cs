@@ -40,10 +40,23 @@ namespace Teh_Pucuk
             towermu = punyamereka.GetValue<bool>();
             jarakku = jarak.GetValue<bool>();
 
-            //MenuItem_ValueChanged g ketemu
+            punyakita.ValueChanged += MenuItem_ValueChanged;
+            punyamereka.ValueChanged += MenuItem_ValueChanged;
+            jarak.ValueChanged += MenuItem_ValueChanged;
 
             Game.OnUpdate += Game_OnUpdate;
             _loaded = false;
+        }
+
+
+        private static void MenuItem_ValueChanged(object sender, OnValueChangeEventArgs e)
+        {
+            var item = sender as MenuItem;
+            if (item.Name == "Tower Kita") towerku = e.GetNewValue<bool>();
+            else if (item.Name == "Tower Musuh") towermu = e.GetNewValue<bool>();
+            else jarakku = e.GetNewValue<bool>();
+
+            LiatJarak();
         }
 
         private static void Game_OnUpdate(EventArgs args)
@@ -58,7 +71,7 @@ namespace Teh_Pucuk
                 LiatJarak();
                 keliatan();
                 _loaded = true;
-                Game.PrintMessage("<font face='Comic Sans MS, cursive'><font color='#00aaff'>Teh Pucuk Loaded</font>", MessageType.ChatMessage);
+                Game.PrintMessage("<font face='Comic Sans MS, cursive'><font color='#00aaff'>Teh Pucuk</font>", MessageType.ChatMessage);
             }
             if (!Game.IsInGame || gue == null)
             {
@@ -70,6 +83,14 @@ namespace Teh_Pucuk
 
         private static void LiatJarak()
         {
+            if (!Game.IsInGame)
+                return;
+
+            foreach (var e in Effects)
+            {
+                e.Dispose();
+            }
+            Effects.Clear();
             gue = ObjectMgr.LocalHero;
             maxjarak = gue.GetAttackRange() + gue.HullRadius + 25;
             var towers = ObjectMgr.GetEntities<Building>().Where(x => x.IsAlive && x.ClassID == ClassID.CDOTA_BaseNPC_Tower).ToList();
@@ -113,9 +134,10 @@ namespace Teh_Pucuk
             var player = ObjectMgr.LocalPlayer;
             var playerkita = ObjectMgr.GetEntities<Hero>().Where(y => y.Team == player.Team).ToList();
             var units = ObjectMgr.GetEntities<Unit>().Where(x => x.ClassID != ClassID.CDOTA_BaseNPC_Creep_Lane && x.Team == player.Team).ToList();
-            ParticleEffect effect;
+
             foreach (var unit in units)
             {
+                ParticleEffect effect;
                 effect = unit.AddParticleEffect("particles/items_fx/aura_shivas.vpcf");
                 if (unit.IsAlive && unit.IsVisibleToEnemies)
                 {
