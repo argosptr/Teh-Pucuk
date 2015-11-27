@@ -77,7 +77,17 @@ namespace Teh_Pucuk
                 {
                     LiatJarak();
                 }
-                keliatan();
+                var player = ObjectMgr.LocalPlayer;
+                var units = ObjectMgr.GetEntities<Unit>().Where(x => x.ClassID != ClassID.CDOTA_BaseNPC_Creep_Lane && x.Team == player.Team).ToList();
+                var playerkita = ObjectMgr.GetEntities<Hero>().Where(y => y.Team == player.Team).ToList();
+                foreach (var unit in units)
+                {
+                    keliatan(unit);
+                }
+                foreach(var kita in playerkita)
+                {
+                    cekheroinvi(kita);
+                }
             }
         }
 
@@ -92,10 +102,6 @@ namespace Teh_Pucuk
             LiatJarak();
         }
 
-        private static void Game_OnUpdate(EventArgs args)
-        {
-
-        }
 
         private static void LiatJarak()
         {
@@ -151,26 +157,20 @@ namespace Teh_Pucuk
 
         }
 
-        private static void keliatan()
-        {
-            bool spam = false;
-            var player = ObjectMgr.LocalPlayer;
-            var playerkita = ObjectMgr.GetEntities<Hero>().Where(y => y.Team == player.Team).ToList();
-            var units = ObjectMgr.GetEntities<Unit>().Where(x => x.ClassID != ClassID.CDOTA_BaseNPC_Creep_Lane && x.Team == player.Team).ToList();
-
-            foreach (var unit in units)
+        private static void keliatan(Unit unit)
             {
-                ParticleEffect effect;
-                effect = unit.AddParticleEffect("particles/items_fx/aura_shivas.vpcf");
-                if (unit.IsAlive && unit.IsVisibleToEnemies)
+                if (unit.IsVisibleToEnemies && unit.IsAlive)
                 {
+                    ParticleEffect effect;
                     if (!Efek.TryGetValue(unit, out effect))
                     {
+                        effect = unit.AddParticleEffect("particles/items_fx/aura_shivas.vpcf");
                         Efek.Add(unit, effect);
                     }
                 }
                 else
                 {
+                    ParticleEffect effect;
                     if (Efek.TryGetValue(unit, out effect))
                     {
                         effect.Dispose();
@@ -178,9 +178,12 @@ namespace Teh_Pucuk
                     }
                 }
             }
-            foreach (var kita in playerkita)
+
+
+        private static void cekheroinvi(Hero kita)
             {
-                if (kita.IsAlive && kita.IsVisibleToEnemies && kita.IsInvisible() && !spam)
+            bool spam = false;
+            if (kita.IsAlive && kita.IsVisibleToEnemies && kita.IsInvisible() && !spam)
                 {
                     Game.ExecuteCommand("say_team " + kita.Name + " alias " + kita.NetworkName + " keliatan ");
                     spam = true;
