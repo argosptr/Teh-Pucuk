@@ -118,7 +118,7 @@ namespace TehPucuk
         //Cek yang invi keliatan apa g
         static void cekinvis(Hero kita)
         {
-            if (kita.IsInvisible()&& kita.IsVisibleToEnemies)
+            if (kita.IsVisibleToEnemies)
             {
                 Game.ExecuteCommand("say_team " + kita.Name.Replace("npc_dota_hero_","") + " keliatan");
                 count += 1;
