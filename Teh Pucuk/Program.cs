@@ -12,7 +12,7 @@ namespace TehPucuk
 {
     internal class Program
     {
-        bool spam = false;
+        static bool spam = false;
         private static bool ownTowers = true;
         private static bool enemyTowers = true;
         private static bool jarSer = true;
@@ -85,21 +85,21 @@ namespace TehPucuk
             }
             foreach (var kita in playerkita)
             {
-                spam= cekinvis(kita, spam);
+                cekinvis(kita, spam);
             }
         }
 
-        static bool cekinvis(Hero kita, bool spam)
+        static void cekinvis(Hero kita, bool spam)
         {
             if (kita.IsInvisible() && kita.IsVisibleToEnemies && spam == false)
             {
                 Game.ExecuteCommand("say_team " + kita.Name + " keliatan");
-                return true;
+                spam = true;
             }
             else if (!kita.IsVisibleToEnemies)
-                return false;
+                spam =false;
             else
-                return true;
+                spam =  true;
       
         }
         static void HandleEffect(Unit unit)
