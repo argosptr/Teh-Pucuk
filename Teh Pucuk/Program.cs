@@ -70,7 +70,7 @@ namespace Teh_Pucuk
             var item = sender as MenuItem;
             if (item.Name == "Tower Kita") towerku = e.GetNewValue<bool>();
             else if (item.Name == "Tower Musuh") towermu = e.GetNewValue<bool>();
-            else jarakku = e.GetNewValue<bool>();
+            else if (item.Name=="Jarak Serang") jarakku = e.GetNewValue<bool>();
             LiatJarak();
         }
 
@@ -105,6 +105,7 @@ namespace Teh_Pucuk
             {
                 e.Dispose();
             }
+            rangeDisplay = null;
             gue = ObjectMgr.LocalHero;
             var towers = ObjectMgr.GetEntities<Building>().Where(x => x.IsAlive && x.ClassID == ClassID.CDOTA_BaseNPC_Tower).ToList();
             var player = ObjectMgr.LocalPlayer;
