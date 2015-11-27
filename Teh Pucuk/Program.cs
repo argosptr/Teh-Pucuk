@@ -102,7 +102,7 @@ namespace TehPucuk
 
             if (args.GameEvent.Name != "dota_inventory_changed")
                 return;
-                var itemsPurchased = ObjectMgr.GetEntities<Item>().Where(item => !Items.ContainsKey(item.Handle) && item.Owner.Team != ObjectMgr.LocalHero.Team && !item.Owner.IsIllusion() && (item.Cost >= 1000 || itembahaya.Contains(item.Name)) && !item.IsRecipe && !item.Owner.Name.Equals("npc_dota_hero_roshan")).ToList();
+                var itemsPurchased = ObjectMgr.GetEntities<Item>().Where(item => !Items.ContainsKey(item.Handle) && item.Owner.Team != ObjectMgr.LocalHero.Team && !item.Owner.IsIllusion() && itembahaya.Contains(item.Name)).ToList();
             if (!itemsPurchased.Any())
                 return;
             foreach (var item in itemsPurchased)
@@ -115,7 +115,7 @@ namespace TehPucuk
         //Cek yang invi keliatan apa g
         static void cekinvis(Hero kita)
         {
-            if (kita.IsVisibleToEnemies)
+            if (kita.IsInvisible() && kita.IsVisibleToEnemies)
             {
                 Game.ExecuteCommand("say_team " + kita.Name.Replace("npc_dota_hero_","") + " keliatan");
                 count += 1;
