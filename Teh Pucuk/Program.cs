@@ -45,6 +45,7 @@ namespace Teh_Pucuk
             punyamereka.ValueChanged += MenuItem_ValueChanged;
             jarak.ValueChanged += MenuItem_ValueChanged;
 
+            keliatan();
             LiatJarak();
             Game.OnFireEvent += Game_OnFireEvent;
             _loaded = false;
