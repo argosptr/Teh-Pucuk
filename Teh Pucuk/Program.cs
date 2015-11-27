@@ -59,6 +59,7 @@ namespace Teh_Pucuk
             {
                 var state = (GameState)args.GameEvent.GetInt("new_state");
                 if (state == GameState.Started || state == GameState.Prestart)
+                    keliatan();
                     Game.OnUpdate += Game_OnUpdate;
 
             }
