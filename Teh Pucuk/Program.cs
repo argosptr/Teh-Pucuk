@@ -12,7 +12,7 @@ namespace TehPucuk
 {
     internal class Program
     {
-
+        static bool spam = false;
         private static bool ownTowers = true;
         private static bool enemyTowers = true;
         private static bool jarSer = true;
@@ -71,7 +71,7 @@ namespace TehPucuk
 
 
             //Aura Keliatan di map
-            static bool spam = false;
+
             var player = ObjectMgr.LocalPlayer;
             var units = ObjectMgr.GetEntities<Unit>().Where(
             x =>
