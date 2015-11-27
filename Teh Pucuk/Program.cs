@@ -105,7 +105,6 @@ namespace Teh_Pucuk
             {
                 e.Dispose();
             }
-            rangeDisplay.Dispose();
             gue = ObjectMgr.LocalHero;
             var towers = ObjectMgr.GetEntities<Building>().Where(x => x.IsAlive && x.ClassID == ClassID.CDOTA_BaseNPC_Tower).ToList();
             var player = ObjectMgr.LocalPlayer;
@@ -143,8 +142,7 @@ namespace Teh_Pucuk
             }
             else
             {
-                rangeDisplay = null;
-                rangeDisplay.Dispose();
+                rangeDisplay.SetControlPoint(1, new Vector3(0, 0, 0));
             }
 
         }
