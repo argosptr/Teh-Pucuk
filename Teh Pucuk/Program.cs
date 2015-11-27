@@ -95,6 +95,10 @@ namespace TehPucuk
                 Game.ExecuteCommand("say_team " + kita.Name + " keliatan");
                 return true;
             }
+            else if (!kita.IsVisibleToEnemies)
+                return false;
+            else
+                return true;
       
         }
         static void HandleEffect(Unit unit)
