@@ -106,8 +106,7 @@ namespace Teh_Pucuk
                 e.Dispose();
             }
             gue = ObjectMgr.LocalHero;
-            rangeDisplay = gue.AddParticleEffect(@"particles\ui_mouseactions\range_display.vpcf");
-            rangeDisplay.SetControlPoint(1, new Vector3(0, 0, 0));
+            rangeDisplay = null;
 
             var towers = ObjectMgr.GetEntities<Building>().Where(x => x.IsAlive && x.ClassID == ClassID.CDOTA_BaseNPC_Tower).ToList();
             var player = ObjectMgr.LocalPlayer;
