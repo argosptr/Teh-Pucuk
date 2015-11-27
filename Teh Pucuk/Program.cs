@@ -45,9 +45,24 @@ namespace Teh_Pucuk
             punyamereka.ValueChanged += MenuItem_ValueChanged;
             jarak.ValueChanged += MenuItem_ValueChanged;
 
-            Game.OnUpdate += Game_OnUpdate;
+            LiatJarak();
+            Game.OnFireEvent += Game_OnFireEvent;
             _loaded = false;
         }
+
+
+
+        private static void Game_OnFireEvent(FireEventEventArgs args)
+        {
+            if (args.GameEvent.Name == "dota_game_state_change")
+            {
+                var state = (GameState)args.GameEvent.GetInt("new_state");
+                if (state == GameState.Started || state == GameState.Prestart)
+                    Game.OnUpdate += Game_OnUpdate;
+
+            }
+        }
+
 
 
         private static void MenuItem_ValueChanged(object sender, OnValueChangeEventArgs e)
@@ -56,7 +71,6 @@ namespace Teh_Pucuk
             if (item.Name == "Tower Kita") towerku = e.GetNewValue<bool>();
             else if (item.Name == "Tower Musuh") towermu = e.GetNewValue<bool>();
             else jarakku = e.GetNewValue<bool>();
-
             LiatJarak();
         }
 
