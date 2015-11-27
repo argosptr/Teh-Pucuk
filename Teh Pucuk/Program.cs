@@ -126,6 +126,7 @@ namespace Teh_Pucuk
                     effect.SetControlPoint(1, new Vector3(850,0,0));
                     Effects.Add(effect);
                }
+
             }
             if (jarakku)
             {
