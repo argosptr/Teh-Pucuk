@@ -112,21 +112,24 @@ namespace Teh_Pucuk
                     Effects.Add(effect);
                }
             }
-            if (rangeDisplay == null && jarakku)
+            if (jarakku)
             {
-                rangeDisplay = gue.AddParticleEffect(@"particles\ui_mouseactions\range_display.vpcf");
-                maxjarak = gue.GetAttackRange() + gue.HullRadius + 25;
-                rangeDisplay.SetControlPoint(1, new Vector3(maxjarak, 0, 0));
-            }
-            else if (maxjarak != gue.GetAttackRange() + gue.HullRadius + 25 && jarakku)
-            {
-                rangeDisplay.Dispose();
-                maxjarak = gue.GetAttackRange() + gue.HullRadius + 25;
-                rangeDisplay = gue.AddParticleEffect(@"particles\ui_mouseactions\range_display.vpcf");
-                rangeDisplay.SetControlPoint(1, new Vector3(maxjarak, 0, 0));
+                if (rangeDisplay == null)
+                {
+                    rangeDisplay = gue.AddParticleEffect(@"particles\ui_mouseactions\range_display.vpcf");
+                    maxjarak = gue.GetAttackRange() + gue.HullRadius + 25;
+                    rangeDisplay.SetControlPoint(1, new Vector3(maxjarak, 0, 0));
+                }
+                else if (maxjarak != gue.GetAttackRange() + gue.HullRadius + 25)
+                {
+                    rangeDisplay.Dispose();
+                    maxjarak = gue.GetAttackRange() + gue.HullRadius + 25;
+                    rangeDisplay = gue.AddParticleEffect(@"particles\ui_mouseactions\range_display.vpcf");
+                    rangeDisplay.SetControlPoint(1, new Vector3(maxjarak, 0, 0));
+                }
             }
             else
-                rangeDisplay=null;
+                rangeDisplay = null;
         }
 
         private static void keliatan()
