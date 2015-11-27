@@ -1,111 +1,112 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Ensage;
-using Ensage.Common;
-using SharpDX;
 using Ensage.Common.Menu;
+using SharpDX;
 using Ensage.Common.Extensions;
+using System.Threading;
+using Ensage.Common;
 
 
-namespace Teh_Pucuk
+namespace TehPucuk
 {
-    class Program
+    internal class Program
     {
-        private static bool towerku = true;
-        private static bool towermu = true;
-        private static bool jarakku = true;
-        private static bool _loaded;
-        private static float maxjarak;
-        private static Hero gue;
+        private static bool ownTowers = true;
+        private static bool enemyTowers = true;
+        private static bool jarSer = true;
         private static ParticleEffect rangeDisplay;
-        private static readonly Menu menu = new Menu("Display", "display", true);
+        private static float lastRange;
+        private static Hero me;
+        private static readonly Menu Menu = new Menu("Display", "towerRange", true);
         private static readonly Dictionary<Unit, ParticleEffect> Efek = new Dictionary<Unit, ParticleEffect>();
         private static readonly List<ParticleEffect> Effects = new List<ParticleEffect>(); // keep references
 
-        
-        static void Main(string[] args)
+        private static void Main()
         {
-            var punyakita = new MenuItem("Tower Kita", "Range of allied towers").SetValue(true);
-            var punyamereka = new MenuItem("Tower Musuh", "Range of enemy towers").SetValue(true);
-            var jarak = new MenuItem("Jarak Serang", "Range of hero attack").SetValue(true);
+            var ally = new MenuItem("ownTowers", "Range of allied towers").SetValue(true);
+            var enemy = new MenuItem("enemyTowers", "Range of enemy towers").SetValue(true);
+            var jarak = new MenuItem("jarSer", "Range of hero attack").SetValue(true);
 
-            menu.AddItem(punyakita);
-            menu.AddItem(punyamereka);
-            menu.AddItem(jarak);
-            menu.AddToMainMenu();
+            ownTowers = ally.GetValue<bool>();
+            enemyTowers = enemy.GetValue<bool>();
+            jarSer = jarak.GetValue<bool>();
 
-            towerku = punyakita.GetValue<bool>();
-            towermu = punyamereka.GetValue<bool>();
-            jarakku = jarak.GetValue<bool>();
-
-            punyakita.ValueChanged += MenuItem_ValueChanged;
-            punyamereka.ValueChanged += MenuItem_ValueChanged;
+            ally.ValueChanged += MenuItem_ValueChanged;
+            enemy.ValueChanged += MenuItem_ValueChanged;
             jarak.ValueChanged += MenuItem_ValueChanged;
-            LiatJarak();
+
+            Menu.AddItem(ally);
+            Menu.AddItem(enemy);
+            Menu.AddItem(jarak);
+
+            Menu.AddToMainMenu();
+
+            DisplayRange();
             Game.OnFireEvent += Game_OnFireEvent;
-            _loaded = false;
         }
 
+        // ReSharper disable once InconsistentNaming
+        private static void MenuItem_ValueChanged(object sender, OnValueChangeEventArgs e)
+        {
+            var item = sender as MenuItem;
 
+            // ReSharper disable once PossibleNullReferenceException
+            if (item.Name == "ownTowers") ownTowers = e.GetNewValue<bool>();
+            else enemyTowers = e.GetNewValue<bool>();
+
+            DisplayRange();
+        }
 
         private static void Game_OnFireEvent(FireEventEventArgs args)
         {
-
             if (args.GameEvent.Name == "dota_game_state_change")
             {
-                var gue = ObjectMgr.LocalHero;
-                if (!_loaded)
-                {
-                    if (!Game.IsInGame || gue == null)
-                    {
-                        return;
-                    }
-                    _loaded = true;
-                    Game.PrintMessage("<font face='Comic Sans MS, cursive'><font color='#00aaff'>Teh Pucuk</font>", MessageType.ChatMessage);
-                }
-                if (!Game.IsInGame || gue == null)
-                {
-                    _loaded = false;
-                    Game.PrintMessage("<font face='Comic Sans MS, cursive'><font color='#00aaff'>Teh Pucuk Mati</font>", MessageType.ChatMessage);
-                    return;
-                }
                 var state = (GameState)args.GameEvent.GetInt("new_state");
                 if (state == GameState.Started || state == GameState.Prestart)
+                    DisplayRange();
+            }
+
+
+
+
+            //Aura Keliatan di map
+
+            var player = ObjectMgr.LocalPlayer;
+            var units = ObjectMgr.GetEntities<Unit>().Where(
+            x =>
+            (x.ClassID != ClassID.CDOTA_BaseNPC_Creep_Lane) && x.Team == player.Team).ToList();
+            foreach (var unit in units)
+            {
+                HandleEffect(unit);
+            }
+        }
+
+        static void HandleEffect(Unit unit)
+        {
+            if (unit.IsVisibleToEnemies && unit.IsAlive)
+            {
+                ParticleEffect effect;
+                if (!Efek.TryGetValue(unit, out effect))
                 {
-                    LiatJarak();
+                    effect = unit.AddParticleEffect("particles/items_fx/aura_shivas.vpcf");
+                    Efek.Add(unit, effect);
                 }
-                var player = ObjectMgr.LocalPlayer;
-                var playerkita = ObjectMgr.GetEntities<Hero>().Where(y => y.Team == player.Team).ToList();
-                var units = ObjectMgr.GetEntities<Unit>().Where(
-                x =>
-                (x.ClassID != ClassID.CDOTA_BaseNPC_Creep_Lane) && x.Team == player.Team).ToList();
-                foreach (var unit in units)
+            }
+            else
+            {
+                ParticleEffect effect;
+                if (Efek.TryGetValue(unit, out effect))
                 {
-                    keliatan(unit);
-                }
-                foreach (var kita in playerkita)
-                {
-                    cekheroinvi(kita);
+                    effect.Dispose();
+                    Efek.Remove(unit);
                 }
             }
         }
 
 
 
-        private static void MenuItem_ValueChanged(object sender, OnValueChangeEventArgs e)
-        {
-            var item = sender as MenuItem;
-            if (item.Name == "Tower Kita") towerku = e.GetNewValue<bool>();
-            else if (item.Name == "Tower Musuh") towermu = e.GetNewValue<bool>();
-            else if (item.Name=="Jarak Serang") jarakku = e.GetNewValue<bool>();
-            LiatJarak();
-        }
-
-
-        private static void LiatJarak()
+        private static void DisplayRange()
         {
             if (!Game.IsInGame)
                 return;
@@ -114,88 +115,61 @@ namespace Teh_Pucuk
             {
                 e.Dispose();
             }
-            gue = ObjectMgr.LocalHero;
-            rangeDisplay = null;
-
-            var towers = ObjectMgr.GetEntities<Building>().Where(x => x.IsAlive && x.ClassID == ClassID.CDOTA_BaseNPC_Tower).ToList();
+            Effects.Clear();
+            me = ObjectMgr.LocalHero;
             var player = ObjectMgr.LocalPlayer;
-            if (towermu)
+            rangeDisplay = null;
+            if (player == null)
+                return;
+            var towers =
+                ObjectMgr.GetEntities<Building>()
+                    .Where(x => x.IsAlive && x.ClassID == ClassID.CDOTA_BaseNPC_Tower)
+                    .ToList();
+            if (!towers.Any())
+                return;
+            if (rangeDisplay == null)
             {
-                foreach (var effect in towers.Where(x => x.Team != player.Team).Select(tower => tower.AddParticleEffect(@"particles\ui_mouseactions\range_display.vpcf")))
+                rangeDisplay = me.AddParticleEffect(@"particles\ui_mouseactions\range_display.vpcf");
+                lastRange = me.GetAttackRange() + me.HullRadius + 25;
+                rangeDisplay.SetControlPoint(1, new Vector3(lastRange, 0, 0));
+            }
+            else
+            {
+                if (lastRange != (me.GetAttackRange() + me.HullRadius + 25))
+                {
+                    lastRange = me.GetAttackRange() + me.HullRadius + 25;
+                    rangeDisplay.Dispose();
+                    rangeDisplay = me.AddParticleEffect(@"particles\ui_mouseactions\range_display.vpcf");
+                    rangeDisplay.SetControlPoint(1, new Vector3(lastRange, 0, 0));
+                }
+            }
+            if (player.Team == Team.Observer)
+            {
+                foreach (var effect in towers.Select(tower => tower.AddParticleEffect(@"particles\ui_mouseactions\range_display.vpcf")))
                 {
                     effect.SetControlPoint(1, new Vector3(850, 0, 0));
                     Effects.Add(effect);
                 }
             }
-            if (towerku)
-            {
-               foreach (var effect in towers.Where(x => x.Team == player.Team).Select(tower => tower.AddParticleEffect(@"particles\ui_mouseactions\range_display.vpcf")))
-               {
-                    effect.SetControlPoint(1, new Vector3(850,0,0));
-                    Effects.Add(effect);
-               }
-
-            }
-            if (jarakku)
-            {
-                if (rangeDisplay == null)
-                {
-                    rangeDisplay = gue.AddParticleEffect(@"particles\ui_mouseactions\range_display.vpcf");
-                    maxjarak = gue.GetAttackRange() + gue.HullRadius + 25;
-                    rangeDisplay.SetControlPoint(1, new Vector3(maxjarak, 0, 0));
-                }
-                else if (maxjarak != gue.GetAttackRange() + gue.HullRadius + 25)
-                {
-                    rangeDisplay.Dispose();
-                    maxjarak = gue.GetAttackRange() + gue.HullRadius + 25;
-                    rangeDisplay = gue.AddParticleEffect(@"particles\ui_mouseactions\range_display.vpcf");
-                    rangeDisplay.SetControlPoint(1, new Vector3(maxjarak, 0, 0));
-                }
-            }
             else
             {
-                rangeDisplay.SetControlPoint(1, new Vector3(0, 0, 0));
-            }
-
-        }
-
-        private static void keliatan(Unit unit)
-            {
-                if (unit.IsVisibleToEnemies && unit.IsAlive)
+                if (enemyTowers)
                 {
-                    ParticleEffect effect;
-                    if (!Efek.TryGetValue(unit, out effect))
+                    foreach (var effect in towers.Where(x => x.Team != player.Team).Select(tower => tower.AddParticleEffect(@"particles\ui_mouseactions\range_display.vpcf")))
                     {
-                        effect = unit.AddParticleEffect("particles/items_fx/aura_shivas.vpcf");
-                        Efek.Add(unit, effect);
+                        effect.SetControlPoint(1, new Vector3(850, 0, 0));
+                        Effects.Add(effect);
                     }
                 }
-                else
+                if (ownTowers)
                 {
-                    ParticleEffect effect;
-                    if (Efek.TryGetValue(unit, out effect))
+                    foreach (var effect in towers.Where(x => x.Team == player.Team).Select(tower => tower.AddParticleEffect(@"particles\ui_mouseactions\range_display.vpcf")))
                     {
-                        effect.Dispose();
-                        Efek.Remove(unit);
+                        effect.SetControlPoint(1, new Vector3(850, 0, 0));
+                        Effects.Add(effect);
                     }
                 }
             }
-
- 
-        private static void cekheroinvi(Hero kita)
-            {
-            bool spam = false;
-            if (kita.IsAlive && kita.IsVisibleToEnemies && kita.IsInvisible() && !spam)
-                {
-                    Game.ExecuteCommand("say_team  keliatan ");
-                    spam = true;
-                }
-                if (kita.IsAlive && !kita.IsVisibleToEnemies && kita.IsInvisible() && !spam)
-                {
-                    spam = false; 
-                }
-            }
         }
-
-    
+    }
 }
