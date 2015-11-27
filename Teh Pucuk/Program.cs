@@ -179,7 +179,7 @@ namespace Teh_Pucuk
                 }
             }
 
-
+ 
         private static void cekheroinvi(Hero kita)
             {
             bool spam = false;
