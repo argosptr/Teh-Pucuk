@@ -12,7 +12,7 @@ namespace TehPucuk
 {
     internal class Program
     {
-        static int spam = 0;
+        static int count = 0;
         private static bool ownTowers = true;
         private static bool enemyTowers = true;
         private static bool jarSer = true;
@@ -24,6 +24,7 @@ namespace TehPucuk
         private static readonly List<ParticleEffect> Effects = new List<ParticleEffect>(); // keep references
         private static void Main()
         {
+
             var ally = new MenuItem("ownTowers", "Range of allied towers").SetValue(true);
             var enemy = new MenuItem("enemyTowers", "Range of enemy towers").SetValue(true);
             var jarak = new MenuItem("jarSer", "Range of hero attack").SetValue(true);
@@ -85,20 +86,20 @@ namespace TehPucuk
             }
             foreach (var kita in playerkita)
             {
-                cekinvis(kita, spam);
+                if (count<1)
+                cekinvis(kita);
+                if (!kita.IsVisibleToEnemies)
+                    count = 0;
             }
         }
 
-        static void cekinvis(Hero kita, int spam)
+        static void cekinvis(Hero kita)
         {
-            if (kita.IsInvisible() && kita.IsVisibleToEnemies && spam <1)
+            if (kita.IsInvisible()&& kita.IsVisibleToEnemies)
             {
                 Game.ExecuteCommand("say_team " + kita.Name + " keliatan");
-                spam += 1;
+                count += 1;
             }
-            else if (!kita.IsVisibleToEnemies)
-                spam =0;
-      
         }
         static void HandleEffect(Unit unit)
         {
