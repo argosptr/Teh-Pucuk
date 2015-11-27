@@ -119,7 +119,7 @@ namespace TehPucuk
         {
             if (kita.IsInvisible()&& kita.IsVisibleToEnemies)
             {
-                Game.ExecuteCommand("say_team " + kita.Name.Replace("npc_dota_hero_hero","") + " keliatan");
+                Game.ExecuteCommand("say_team " + kita.Name.Replace("npc_dota_hero_","") + " keliatan");
                 count += 1;
             }
         }
