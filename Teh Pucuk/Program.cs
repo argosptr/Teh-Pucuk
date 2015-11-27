@@ -12,7 +12,7 @@ namespace TehPucuk
 {
     internal class Program
     {
-        static bool spam;
+        static int spam = 0;
         private static bool ownTowers = true;
         private static bool enemyTowers = true;
         private static bool jarSer = true;
@@ -78,7 +78,7 @@ namespace TehPucuk
             (x.ClassID != ClassID.CDOTA_BaseNPC_Creep_Lane) && x.Team == player.Team).ToList();
             var playerkita = ObjectMgr.GetEntities<Hero>().Where(
                 y =>
-                (y.Team == player.Team && y.IsInvisible()&& y.IsAlive));
+                (y.Team == player.Team && y.IsAlive));
             foreach (var unit in units)
             {
                 HandleEffect(unit);
@@ -89,17 +89,15 @@ namespace TehPucuk
             }
         }
 
-        static void cekinvis(Hero kita, bool spam)
+        static void cekinvis(Hero kita, int spam)
         {
-            if (kita.IsInvisible() && kita.IsVisibleToEnemies && spam == false)
+            if (kita.IsInvisible() && kita.IsVisibleToEnemies && spam <1)
             {
                 Game.ExecuteCommand("say_team " + kita.Name + " keliatan");
-                spam = true;
+                spam += 1;
             }
             else if (!kita.IsVisibleToEnemies)
-                spam =false;
-            else
-                spam =  true;
+                spam =0;
       
         }
         static void HandleEffect(Unit unit)
