@@ -105,7 +105,7 @@ namespace Teh_Pucuk
             {
                 e.Dispose();
             }
-            rangeDisplay = null;
+            rangeDisplay.Dispose();
             gue = ObjectMgr.LocalHero;
             var towers = ObjectMgr.GetEntities<Building>().Where(x => x.IsAlive && x.ClassID == ClassID.CDOTA_BaseNPC_Tower).ToList();
             var player = ObjectMgr.LocalPlayer;
