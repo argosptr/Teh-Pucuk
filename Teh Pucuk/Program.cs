@@ -15,7 +15,6 @@ namespace TehPucuk
         private static bool ownTowers = true;
         private static bool enemyTowers = true;
         private static bool jarSer = true;
-        private static bool spam = false;
         private static ParticleEffect rangeDisplay;
         private static float lastRange;
         private static Hero me;
@@ -71,7 +70,7 @@ namespace TehPucuk
 
 
             //Aura Keliatan di map
-
+            bool spam = false;
             var player = ObjectMgr.LocalPlayer;
             var units = ObjectMgr.GetEntities<Unit>().Where(
             x =>
@@ -93,11 +92,10 @@ namespace TehPucuk
         {
             if (kita.IsInvisible() && kita.IsVisibleToEnemies && spam == false)
             {
-                Game.ExecuteCommand("say_team " + kita.Name.ToLower() + " keliatan");
+                Game.ExecuteCommand("say_team " + kita.Name + " keliatan");
                 return true;
             }
-            else
-                return false;
+      
         }
         static void HandleEffect(Unit unit)
         {
