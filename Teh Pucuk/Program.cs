@@ -12,7 +12,7 @@ namespace TehPucuk
 {
     internal class Program
     {
-        static bool spam = false;
+        static bool spam;
         private static bool ownTowers = true;
         private static bool enemyTowers = true;
         private static bool jarSer = true;
