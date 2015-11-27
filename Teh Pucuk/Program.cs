@@ -142,7 +142,7 @@ namespace Teh_Pucuk
                 }
                 if (kita.IsAlive && !kita.IsVisibleToEnemies && kita.IsInvisible() && !spam)
                 {
-                    spam = false;
+                    spam = false; 
                 }
             }
         }
